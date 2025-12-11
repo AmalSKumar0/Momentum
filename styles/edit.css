@@ -1,0 +1,101 @@
+:root {
+            --primary: #6c5ce7;
+            --bg-color: #f0f3f8;
+            --text-dark: #2d3436;
+            --text-muted: #636e72;
+            --card-radius: 24px;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            background-image: radial-gradient(#dfe6e9 1px, transparent 1px);
+            background-size: 20px 20px;
+            font-family: 'Nunito', sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+
+        /* --- MODAL LOOKALIKE --- */
+        .modal-card {
+            background: white;
+            padding: 35px;
+            border-radius: 24px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.15);
+            width: 90%;
+            max-width: 450px;
+            border: 2px solid rgba(0,0,0,0.03);
+            position: relative;
+            overflow: hidden;
+            animation: slideUp 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        @keyframes slideUp {
+            from { transform: translateY(20px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        /* Top Decoration Stripe */
+        .modal-card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 6px;
+            background: linear-gradient(90deg, #6c5ce7, #a29bfe);
+        }
+
+        /* --- FORM ELEMENTS --- */
+        .form-group { margin-bottom: 25px; }
+
+        label {
+            display: block; margin-bottom: 10px; font-weight: 800;
+            color: #2d3436; font-size: 0.9rem; letter-spacing: 0.5px;
+            text-transform: uppercase;
+        }
+
+        input[type="text"], select {
+            width: 100%; padding: 16px;
+            border: 2px solid #dfe6e9; border-radius: 16px;
+            font-size: 1rem; font-weight: 700; color: #2d3436;
+            background: #f8f9fa; outline: none; transition: 0.2s;
+            appearance: none;
+            font-family: 'Nunito', sans-serif;
+        }
+
+        /* Dropdown Arrow */
+        .select-wrapper { position: relative; }
+        .select-wrapper::after {
+            content: '\f078'; font-family: 'Font Awesome 5 Free'; font-weight: 900;
+            position: absolute; right: 20px; top: 50%; transform: translateY(-50%);
+            color: #636e72; pointer-events: none;
+        }
+
+        input[type="text"]:focus, select:focus {
+            border-color: #6c5ce7; background: white;
+            box-shadow: 0 0 0 4px rgba(108, 92, 231, 0.1);
+        }
+
+        input[type="submit"] {
+            width: 100%; padding: 18px;
+            background: #6c5ce7; color: white;
+            border: none; border-radius: 16px;
+            font-size: 1.1rem; font-weight: 800; cursor: pointer;
+            box-shadow: 0 6px 0 #5849be; transition: all 0.1s;
+            margin-top: 10px; text-transform: uppercase; letter-spacing: 1px;
+        }
+        input[type="submit"]:hover { transform: translateY(-2px); box-shadow: 0 8px 0 #5849be; }
+        input[type="submit"]:active { transform: translateY(4px); box-shadow: none; }
+
+        .close-btn {
+            position: absolute; top: 20px; right: 20px;
+            background: #f1f2f6; border: none; width: 32px; height: 32px;
+            border-radius: 50%; cursor: pointer; color: #636e72;
+            display: flex; align-items: center; justify-content: center; transition: 0.2s;
+            text-decoration: none; /* Important for anchor tag */
+        }
+        .close-btn:hover { background: #ff7675; color: white; transform: rotate(90deg); }
+        
+        .error-msg {
+            color: #ff7675; font-weight: 700; margin-bottom: 15px; font-size: 0.9rem;
+        }

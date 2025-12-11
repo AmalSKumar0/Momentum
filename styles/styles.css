@@ -1,0 +1,735 @@
+        :root {
+            /* Palette */
+            --primary: #6c5ce7;      /* Purple/Hero Color */
+            --primary-light: #a29bfe;
+            --accent-gold: #fdcb6e;  /* XP/Gold */
+            --accent-red: #ff7675;   /* Health */
+            --accent-cyan: #00cec9;  /* Mana/Tech */
+            
+            --bg-color: #f0f3f8;
+            --card-bg: #ffffff;
+            
+            --text-dark: #2d3436;
+            --text-muted: #636e72;
+            
+            --sidebar-width: 260px;
+            --header-height: 90px;
+            
+            --radius-xl: 24px;
+            --radius-md: 16px;
+            
+            /* Game Shadows */
+            --shadow-soft: 0 8px 20px rgba(108, 92, 231, 0.05);
+            --shadow-hover: 0 15px 30px rgba(108, 92, 231, 0.15);
+            --shadow-3d: 0 6px 0 rgba(0,0,0,0.1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Nunito', 'Poppins', sans-serif; /* Rounder font */
+        }
+        
+        body::-webkit-scrollbar {
+            display: none;
+        }
+
+        a {
+    text-decoration: none;
+}
+
+        body {
+            background-color: var(--bg-color);
+            background-image: radial-gradient(#dfe6e9 1px, transparent 1px); /* Dot pattern */
+            background-size: 20px 20px;
+            height: 100vh;
+            display: flex;
+            overflow: hidden;
+            color: var(--text-dark);
+            -ms-overflow-style: none;  /* IE and Edge */
+            scrollbar-width: none;
+        }
+
+        /* --- Sidebar (Game Menu) --- */
+        .sidebar {
+            width: var(--sidebar-width);
+            background: var(--card-bg);
+            height: 100%;
+            padding: 30px 20px;
+            display: flex;
+            flex-direction: column;
+            border-right: 2px solid rgba(0,0,0,0.03);
+            flex-shrink: 0;
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            z-index: 1000;
+            box-shadow: 5px 0 30px rgba(0,0,0,0.02);
+        }
+
+        .logo {
+            font-size: 1.6rem;
+            font-weight: 800;
+            color: var(--primary);
+            margin-bottom: 40px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding-left: 10px;
+            letter-spacing: -0.5px;
+        }
+        .logo-icon {
+            background: var(--primary);
+            color: white;
+            width: 36px;
+            height: 36px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1rem;
+            box-shadow: 0 4px 10px rgba(108, 92, 231, 0.3);
+        }
+
+        .nav-links {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 14px 20px;
+            color: var(--text-muted);
+            border-radius: var(--radius-md);
+            cursor: pointer;
+            transition: 0.2s;
+            font-weight: 700;
+            font-size: 0.95rem;
+            white-space: nowrap;
+        }
+
+        .nav-item:hover {
+            background: #f1f2f6;
+            color: var(--primary);
+            transform: translateX(5px);
+        }
+
+        .nav-item.active {
+            background: linear-gradient(135deg, var(--primary), var(--primary-light));
+            color: white;
+            box-shadow: 0 8px 20px rgba(108, 92, 231, 0.3);
+            transform: scale(1.02);
+        }
+
+        .sidebar-footer {
+            margin-top: auto;           
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            font-weight: 800;
+            cursor: pointer;
+            width: 100%;
+            position: relative;
+            overflow: hidden;
+        }
+       
+        .pass-badge::after {
+            content: '';
+            position: absolute;
+            top: -10px; right: -10px;
+            width: 50px; height: 50px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 50%;
+        }
+        .pass-badge {
+            margin-top: auto;
+            background: #2f3640;
+            color: #fbc531; /* Gold text */
+            padding: 12px 20px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            font-weight: 800;
+            cursor: pointer;
+            width: 100%;
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* --- Main Content --- */
+        .main-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow-y: auto;
+            position: relative;
+            width: 100%;
+        }
+
+        /* --- HUD Header --- */
+        
+        /* --- Calendar Strip (Game Style) --- */
+        .month-nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            font-weight: 700;
+            font-size: 1.1rem;
+        }
+        
+        .nav-arrow {
+            width: 32px; height: 32px;
+            background: white;
+            border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            cursor: pointer;
+            box-shadow: 0 4px 0 #dfe6e9; /* 3D Button feel */
+            transition: 0.1s;
+            color: var(--primary);
+        }
+        .nav-arrow:active { transform: translateY(4px); box-shadow: none; }
+
+        .date-strip {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 40px;
+            overflow-x: auto;
+            padding: 10px 5px;
+            -ms-overflow-style: none;  
+            scrollbar-width: none;
+        }
+        
+        .date-strip::-webkit-scrollbar {
+            display: none;
+        }
+
+        .date-card {
+            background: white;
+            border-radius: 18px;
+            width: 70px;
+            height: 95px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 0 #dfe6e9; /* 3D feel */
+            cursor: pointer;
+            transition: 0.2s;
+            flex-shrink: 0;
+            border: 1px solid rgba(0,0,0,0.03);
+        }
+
+        .date-num { font-size: 1.4rem; font-weight: 800; color: var(--text-dark); }
+        .date-day { font-size: 0.75rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase; }
+
+        .date-card.active {
+            background: var(--primary);
+            box-shadow: 0 6px 0 #5849be; /* Darker purple shadow */
+            transform: translateY(-4px);
+            border: none;
+        }
+        .date-card.active .date-num, .date-card.active .date-day { color: white; }
+
+        /* --- Quest Board (Course List) --- */
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+        }
+
+        .section-header h2 {
+            font-size: 1.5rem;
+            font-weight: 800;
+            color: var(--text-dark);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .section-header h2 i { color: var(--accent-red); }
+
+        .ai-brief-btn {
+            background: white;
+            color: var(--primary);
+            border: 2px solid var(--primary);
+            padding: 10px 20px;
+            border-radius: 14px;
+            font-weight: 800;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            box-shadow: 0 4px 0 rgba(108, 92, 231, 0.2);
+            transition: 0.2s;
+        }
+        .ai-brief-btn:hover {
+            background: var(--primary);
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 0 rgba(108, 92, 231, 0.3);
+        }
+
+        .course-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 25px;
+            padding-bottom: 40px;
+        }
+
+        /* --- Card Container --- */
+.quest-card {
+    background: white;
+    padding: 18px;
+    border-radius: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    box-shadow: var(--shadow-soft);
+    transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275); /* Bouncy animation */
+    position: relative;
+    border: 2px solid #eff0f6; /* Thicker border for game card feel */
+    overflow: hidden;
+}
+
+.quest-card:hover {
+    transform: translateY(-5px) scale(1.01);
+    box-shadow: var(--shadow-hover);
+    border-color: #dfe6e9;
+}
+
+/* Rarity Stripe - Made Thicker */
+.quest-card::before {
+    content: '';
+    position: absolute;
+    left: 0; top: 0; bottom: 0;
+    width: 8px;
+    background: #dfe6e9;
+    z-index: 1;
+}
+.quest-card.rare::before { background: var(--accent-gold); }
+.quest-card.epic::before { background: var(--primary); }
+.quest-card.common::before { background: var(--accent-cyan); }
+
+/* --- Header Section --- */
+.quest-header {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding-left: 12px;
+    position: relative;
+    z-index: 2;
+}
+
+.icon-box {
+    width: 48px;
+    height: 48px;
+    background-color: #f1f2f6;
+    border-radius: 12px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 1.5rem;
+    flex-shrink: 0;
+    border: 2px solid white;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+}
+
+/* Dynamic Icon Colors */
+.quest-card.rare .icon-box i { color: var(--accent-gold); filter: drop-shadow(0 2px 4px rgba(253, 203, 110, 0.3)); }
+.quest-card.epic .icon-box i { color: var(--primary); filter: drop-shadow(0 2px 4px rgba(108, 92, 231, 0.3)); }
+.quest-card.common .icon-box i { color: var(--accent-cyan); }
+
+.quest-info { flex-grow: 1; }
+
+.quest-info h3 {
+    font-size: 1.1rem;
+    font-weight: 800;
+    line-height: 1.2;
+    margin-bottom: 5px;
+    color: var(--text-dark);
+}
+
+.quest-meta {
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: var(--text-muted);
+    background: #f1f2f6;
+    display: inline-block;
+    padding: 3px 8px;
+    border-radius: 6px;
+}
+
+/* --- Rewards Section --- */
+.quest-rewards {
+    background: repeating-linear-gradient(
+        45deg,
+        #f8f9fa,
+        #f8f9fa 10px,
+        #ffffff 10px,
+        #ffffff 20px
+    ); /* Pattern background */
+    border: 2px dashed #dfe6e9;
+    border-radius: 12px;
+    padding: 8px 12px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-left: 12px;
+}
+
+.loot-tag {
+    font-size: 0.8rem;
+    font-weight: 800;
+    color: var(--text-dark);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    text-shadow: 0 1px 0 rgba(255,255,255,1);
+}
+
+/* --- Action Buttons --- */
+.action-row {
+    display: flex;
+    gap: 12px;
+    padding-left: 12px;
+    margin-top: 5px;
+}
+
+/* COMPLETE Button (Green) */
+.btn-complete {
+    flex: 2; /* Takes up 66% width */
+    background: #2ecc71;
+    color: white;
+    border: none;
+    padding: 12px;
+    border-radius: 12px;
+    font-weight: 800;
+    font-size: 0.9rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    cursor: pointer;
+    box-shadow: 0 5px 0 #27ae60; /* Deep 3D Shadow */
+    transition: all 0.1s;
+    position: relative;
+    top: 0;
+}
+
+.btn-complete:active {
+    top: 5px; /* Pushes down */
+    box-shadow: 0 0 0 #27ae60; /* Shadow disappears */
+}
+
+/* CANCEL Button (Formerly AI Help) */
+/* Redesigned to be a red 'Reject/Fail' button */
+.btn-ai-help {
+    flex: 1; /* Takes up 33% width */
+    background: #ff7675; /* Soft Red */
+    color: white;
+    border: none;
+    padding: 12px;
+    border-radius: 12px;
+    font-weight: 800;
+    font-size: 0.9rem;
+    cursor: pointer;
+    box-shadow: 0 5px 0 #d63031; /* Deep Red Shadow */
+    transition: all 0.1s;
+    position: relative;
+    top: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.btn-ai-help:hover {
+    background: #ff6b6b;
+}
+
+.btn-ai-help:active {
+    top: 5px;
+    box-shadow: 0 0 0 #d63031;
+}
+
+        
+        .menu-btn { display: none; font-size: 1.5rem; cursor: pointer; color: var(--text-dark); }
+        .overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.5); backdrop-filter: blur(4px); opacity: 0; pointer-events: none; transition: 0.3s; z-index: 999; }
+        .overlay.show { opacity: 1; pointer-events: auto; }
+        
+        .ai-modal {
+            position: fixed; top: 50%; left: 50%; transform: translate(-50%, -40%);
+            width: 600px; max-width: 90%; max-height: 80vh;
+            background: white; border-radius: 30px; box-shadow: 0 20px 50px rgba(0,0,0,0.3);
+            padding: 40px; opacity: 0; pointer-events: none; transition: 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            z-index: 1001; display: flex; flex-direction: column;
+            border: 4px solid var(--primary-light);
+        }
+        .ai-modal.show { opacity: 1; pointer-events: auto; transform: translate(-50%, -50%); }
+        .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        .modal-title { font-weight: 800; font-size: 1.4rem; color: var(--primary); display: flex; gap: 10px; align-items: center; }
+        .modal-content { overflow-y: auto; flex: 1; font-size: 1rem; line-height: 1.6; }
+        .loading-dots { display: flex; justify-content: center; gap: 8px; margin-top: 40px; }
+        .dot { width: 12px; height: 12px; background: var(--primary); border-radius: 50%; animation: bounce 1s infinite; }
+        @keyframes bounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
+
+        /* Mobile Responsive */
+        @media (max-width: 768px) {
+            .sidebar { 
+                position: fixed; 
+                left: 0; 
+                top: auto; 
+                bottom: 0; 
+                width: 100%; 
+                height: 80px; 
+                flex-direction: row; 
+                padding: 10px; 
+                border-right: none; 
+                border-top: 1px solid rgba(0,0,0,0.05); 
+                box-shadow: 0 -10px 30px rgba(0,0,0,0.05); 
+                transform: none; 
+                z-index: 1002;
+                justify-content: center;
+            }
+            .sidebar.active { left: 0; }
+
+            .logo, .sidebar-footer {
+                display: none; 
+            }
+
+            .nav-links {
+                flex-direction: row;
+                width: 100%;
+                justify-content: space-around;
+                align-items: center;
+                gap: 0;
+            }
+
+            .nav-item {
+                flex-direction: column;
+                gap: 5px;
+                padding: 8px 12px;
+                font-size: 0.7rem;
+                text-align: center;
+            }
+
+            .nav-item i {
+                font-size: 1.4rem;
+                margin: 0;
+            }
+            
+            .nav-item:hover {
+                 transform: translateY(-5px);
+            }
+
+            .menu-btn { display: none !important; }
+
+            .header { padding: 0 20px; }
+            .dashboard-container { padding: 20px; }
+            .main-content { padding-bottom: 90px; }
+            
+            .course-list { grid-template-columns: 1fr; }
+            .player-status { gap: 10px; }
+            .level-label, .xp-bar-container { display: none; } 
+            
+            .ai-modal { 
+                z-index: 1003;
+                top: auto; 
+                bottom: 0; 
+                left: 0; 
+                width: 100%; 
+                border-radius: 30px 30px 0 0; 
+                transform: translate(0, 100%); 
+            }
+            .ai-modal.show { transform: translate(0,0); }
+        }
+/* --- MODAL OVERLAY --- */
+.modal-overlay {
+    position: fixed;
+    top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(45, 52, 54, 0.6);
+    backdrop-filter: blur(5px);
+    z-index: 2000; /* Higher than sidebar */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.modal-overlay.active {
+    opacity: 1;
+    visibility: visible;
+}
+
+/* --- MODAL CARD (Renamed from .quest-card to avoid conflict) --- */
+.modal-card {
+    background: white;
+    padding: 35px;
+    border-radius: 24px;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.15);
+    width: 90%;
+    max-width: 450px;
+    border: 2px solid rgba(0,0,0,0.03);
+    position: relative;
+    overflow: hidden;
+    transform: scale(0.8) translateY(20px);
+    opacity: 0;
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+/* Decoration specific to the modal */
+.modal-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; width: 100%; height: 6px;
+    background: linear-gradient(90deg, #6c5ce7, #a29bfe);
+}
+
+.modal-overlay.active .modal-card {
+    transform: scale(1) translateY(0);
+    opacity: 1;
+}
+
+/* --- FORM ELEMENTS (Scoped to modal) --- */
+.modal-card .form-group { margin-bottom: 25px; }
+
+.modal-card label {
+    display: block; margin-bottom: 10px; font-weight: 800;
+    color: #2d3436; font-size: 0.9rem; letter-spacing: 0.5px;
+    text-transform: uppercase;
+}
+
+.modal-card input[type="text"], 
+.modal-card select {
+    width: 100%; padding: 16px;
+    border: 2px solid #dfe6e9; border-radius: 16px;
+    font-size: 1rem; font-weight: 700; color: #2d3436;
+    background: #f8f9fa; outline: none; transition: 0.2s;
+    appearance: none;
+}
+
+.modal-card .select-wrapper { position: relative; }
+.modal-card .select-wrapper::after {
+    content: '\f078'; font-family: 'Font Awesome 5 Free'; font-weight: 900;
+    position: absolute; right: 20px; top: 50%; transform: translateY(-50%);
+    color: #636e72; pointer-events: none;
+}
+
+.modal-card input[type="text"]:focus, 
+.modal-card select:focus {
+    border-color: #6c5ce7; background: white;
+    box-shadow: 0 0 0 4px rgba(108, 92, 231, 0.1);
+}
+
+.modal-card input[type="submit"] {
+    width: 100%; padding: 18px;
+    background: #6c5ce7; color: white;
+    border: none; border-radius: 16px;
+    font-size: 1.1rem; font-weight: 800; cursor: pointer;
+    box-shadow: 0 6px 0 #5849be; transition: all 0.1s;
+    margin-top: 10px; text-transform: uppercase; letter-spacing: 1px;
+}
+.modal-card input[type="submit"]:hover { transform: translateY(-2px); box-shadow: 0 8px 0 #5849be; }
+.modal-card input[type="submit"]:active { transform: translateY(4px); box-shadow: none; }
+
+.close-btn {
+    position: absolute; top: 20px; right: 20px;
+    background: #f1f2f6; border: none; width: 32px; height: 32px;
+    border-radius: 50%; cursor: pointer; color: #636e72;
+    display: flex; align-items: center; justify-content: center; transition: 0.2s;
+}
+.close-btn:hover { background: #ff7675; color: white; transform: rotate(90deg); }
+/* Style for the button when the quest is done */
+.quest-done-btn {
+    background: #b2bec3 !important; /* Overrides default button color */
+    box-shadow: none !important;
+    pointer-events: none; /* Prevents clicking */
+    cursor: default;
+}
+
+/* Style for the card wrapper when the quest is done */
+.quest-done-card {
+    opacity: 0.6;
+    transition: opacity 0.3s ease; /* Adds a smooth fade effect */
+}
+ /* Shop Specific Overrides */
+        .btn-buy {
+            background: #feca57; /* Gold color for buy buttons */
+            color: #fff;
+            border: none;
+            width: 100%;
+            padding: 12px;
+            border-radius: 12px;
+            font-weight: 800;
+            text-transform: uppercase;
+            cursor: pointer;
+            box-shadow: 0 4px 0 #ff9f43;
+            transition: all 0.1s;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            font-size: 0.9rem;
+        }
+        .btn-buy:hover { transform: translateY(-2px); box-shadow: 0 6px 0 #ff9f43; color: white; }
+        .btn-buy:active { transform: translateY(4px); box-shadow: none; }
+
+        /* Cost Tag Specifics */
+        .cost-tag {
+            background: #fff4d9;
+            color: #ff9f43;
+            font-weight: 800;
+        }
+        
+        .xp-tag {
+            background: #e0dcfc;
+            color: #6c5ce7;
+            font-weight: 800;
+        }
+
+        .empty-state {
+            grid-column: 1 / -1;
+            text-align: center;
+            padding: 40px;
+            background: white;
+            border-radius: 20px;
+            color: #636e72;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.03);
+        }
+
+        /* --- NOTIFICATION TOAST --- */
+        .notification {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%) translateY(100px); /* Start hidden below */
+            background: #2d3436;
+            color: white;
+            padding: 12px 25px;
+            border-radius: 50px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            font-family: 'Nunito', sans-serif;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            z-index: 9999;
+            opacity: 0;
+            transition: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+        }
+
+        .notification.show {
+            transform: translateX(-50%) translateY(0);
+            opacity: 1;
+        }
+
+        .notification i {
+            color: #feca57;
+        }

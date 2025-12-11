@@ -1,0 +1,196 @@
+        :root {
+            /* Palette */
+            --primary: #6c5ce7;      /* Purple/Hero Color */
+            --primary-light: #a29bfe;
+            --accent-gold: #fdcb6e;  /* XP/Gold */
+            --accent-red: #ff7675;   /* Health */
+            --accent-cyan: #00cec9;  /* Mana/Tech */
+            
+            --bg-color: #f0f3f8;
+            --card-bg: #ffffff;
+            
+            --text-dark: #2d3436;
+            --text-muted: #636e72;
+            
+            --sidebar-width: 260px;
+            --header-height: 90px;
+            
+            --radius-xl: 24px;
+            --radius-md: 16px;
+            
+            /* Game Shadows */
+            --shadow-soft: 0 8px 20px rgba(108, 92, 231, 0.05);
+            --shadow-hover: 0 15px 30px rgba(108, 92, 231, 0.15);
+            --shadow-3d: 0 6px 0 rgba(0,0,0,0.1);
+        }
+.header {
+            height: var(--header-height);
+            padding: 0 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-shrink: 0;
+            background: rgba(240, 243, 248, 0.8);
+            backdrop-filter: blur(10px);
+            position: sticky;
+            top: 0;
+            z-index: 900;
+        }
+
+        .header-greeting h1 {
+            font-weight: 800;
+            color: var(--text-dark);
+            font-size: 1.8rem;
+        }
+        .header-greeting span { color: var(--primary); }
+
+        .player-status {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        /* Currency / Life / Gems Boxes */
+        .player-box {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-family: 'Nunito', 'Poppins', sans-serif;
+}
+
+/* --- AVATAR OUTER SHAPE --- */
+.avatar {
+    width: 70px;
+    height: 45px;
+    background: #9CA7D9;
+    border-radius: 25px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+}
+
+/* to get the smooth thick outline look */
+.avatar-inner {
+    width: 58px;
+    height: 38px;
+    background: #6D76AA;
+    border-radius: 22px;
+    position: relative;
+    display: flex;
+    justify-content: center;
+}
+
+/* HEAD */
+.avatar-head {
+    width: 18px;
+    height: 18px;
+    background: #FFE75A;
+    border-radius: 50%;
+    position: absolute;
+    top: 4px;
+}
+
+/* BODY */
+.avatar-body {
+    width: 30px;
+    height: 20px;
+    background: #FFE75A;
+    border-radius: 0 0 18px 18px;
+    position: absolute;
+    bottom: 5px;
+}
+
+/* TEXT */
+.player-text {
+    font-size: 14px;
+    font-weight: bold;
+}
+
+/* --- PROGRESS BAR --- */
+.bar {
+    width: 200px;
+    height: 18px;
+    background: transparent;
+    border-radius: 12px;
+    border: 3px solid #2F1B4B;
+    display: flex;
+    overflow: hidden;
+}
+
+/* Yellow fill (75% like the image) */
+.bar-fill {
+    background: #FFD833;
+    width: 70%;
+}
+
+/* Dark remainder */
+.bar-dark {
+    background: #2D1A4A;
+    width: 30%;
+}
+
+        /* --- Dashboard Container --- */
+        .dashboard-container {
+            padding: 20px 40px 40px 40px;
+            max-width: 1200px;
+            width: 100%;
+            margin: 0 auto;
+        }
+@media (max-width: 768px) {
+    .header {
+        padding: 0 15px; /* Reduce side padding */
+        height: 70px; /* Shrink header height */
+    }
+
+    .menu-btn {
+        display: block; /* Show hamburger on mobile */
+    }
+
+    /* Shrink the greeting text */
+    .header-greeting h1 {
+        font-size: 1.2rem;
+    }
+    
+    /* Hide the "Hi" part if screen is VERY small, optional */
+    .header-greeting h1 span {
+        display: inline-block;
+    }
+
+    .player-box {
+        gap: 8px; /* Reduce gap between elements */
+    }
+
+    /* Shrink the Health Bar */
+    .health-bar-container {
+        width: 100px; /* Much smaller width for mobile */
+        height: 10px; /* Slightly thinner */
+    }
+
+    .player-text {
+        font-size: 0.8rem; /* Smaller text */
+    }
+
+    .stat-box {
+        padding: 4px 8px;
+        font-size: 0.9rem;
+    }
+}
+.health-bar-container {
+    width: 200px; /* Default Desktop Width */
+    height: 14px;
+    background-color: #f2f2f2;
+    border: 2px solid #2d3436;
+    border-radius: 20px;
+    overflow: hidden;
+    position: relative;
+}
+
+.health-bar-fill {
+    height: 100%;
+    background-color: #ffd700;
+    border-right: 2px solid #2d3436;
+    border-top-left-radius: 10px;
+    border-bottom-left-radius: 10px;
+    transition: width 0.3s ease; /* Smooth animation when XP changes */
+}
