@@ -13,8 +13,7 @@ $sql = "SELECT h.*, a.isComplete as status
             ON h.id = a.HabitID 
             AND a.UserID = h.user_id 
             AND DATE(a.completedDay) = CURDATE()
-        WHERE h.user_id = ?
-        GROUP BY h.id";
+        WHERE h.user_id = ?";
 
 $stmt = $conn->prepare($sql);
 $stmt->bind_param("i", $user_id);
