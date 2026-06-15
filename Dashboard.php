@@ -7,13 +7,14 @@ if (!isset($_SESSION['user_id'])) {
 
 $user_id = $_SESSION['user_id'];
 
-$sql = "SELECT h.*, a.isComplete as status
+$sql = "SELECT h.*, MAX(a.isComplete) as status
         FROM habits h
         LEFT JOIN activity a 
             ON h.id = a.HabitID 
             AND a.UserID = h.user_id 
             AND DATE(a.completedDay) = CURDATE()
-        WHERE h.user_id = ?";
+        WHERE h.user_id = ?
+        GROUP BY h.id";
 
 $stmt = $conn->prepare($sql);
 $stmt->bind_param("i", $user_id);
