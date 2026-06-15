@@ -1,0 +1,44 @@
+version: '3.8'
+
+services:
+  # MySQL Database Service
+  db:
+    image: mysql:8.0
+    container_name: momentum_db
+    restart: unless-stopped
+    environment:
+      MYSQL_DATABASE: habit_tracker
+      MYSQL_ALLOW_EMPTY_PASSWORD: "yes"
+    volumes:
+      - db_data:/var/lib/mysql
+      # Mount the SQL dump to auto-initialize the database on first run
+      - ./habit_tracker.sql:/docker-entrypoint-initdb.d/habit_tracker.sql:ro
+    ports:
+      - "3306:3306"
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      timeout: 5s
+      retries: 5
+      interval: 5s
+
+  # PHP Web Server Service
+  web:
+    build: .
+    container_name: momentum_web
+    restart: unless-stopped
+    ports:
+      - "8080:80"
+    volumes:
+      # Bind mount the current directory for live code updates in development
+      - .:/var/www/html
+    environment:
+      DB_HOST: db
+      DB_USER: root
+      DB_PASSWORD: ""
+      DB_NAME: habit_tracker
+    depends_on:
+      db:
+        condition: service_healthy
+
+volumes:
+  db_data:

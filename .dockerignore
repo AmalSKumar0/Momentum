@@ -1,0 +1,10 @@
+.git
+.github
+.vscode
+.idea
+.antigravityignore
+Dockerfile
+docker-compose.yml
+.dockerignore
+README.md
+*.sql
