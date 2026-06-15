@@ -37,9 +37,15 @@ Vercel is serverless, meaning it runs the PHP code via serverless functions and 
 2. **Add Environment Variables to Vercel**:
    - Go to your Vercel Project Settings > **Environment Variables** and add:
      - `DB_HOST`: Hostname of your remote database (e.g. `mysql-xxx.aivencloud.com`)
-     - `DB_USER`: Remote database user (e.g. `avnadmin`)
+     - `DB_PORT`: Port of your remote database (e.g. `10738` - Aiven uses custom ports)
+     - `DB_USER`: Remote database user (typically `avnadmin` for Aiven)
      - `DB_PASSWORD`: Remote database password
-     - `DB_NAME`: Remote database name (e.g. `habit_tracker`)
-3. **Deploy the Project**:
+     - `DB_NAME`: Remote database name (e.g. `defaultdb` or your custom DB name)
+     - `DB_SSL_CA`: `ca.pem` (This points to the SSL CA certificate)
+3. **Handle Aiven SSL Certificate**:
+   - Aiven MySQL strictly requires SSL. Download the **CA Certificate** (`ca.pem`) from the Overview tab of your MySQL service in the Aiven Console.
+   - Save this file as `ca.pem` in the root of your project directory.
+   - Commit and push `ca.pem` to your git repository (`git add ca.pem && git commit -m "add Aiven CA cert" && git push`). Vercel will upload it during build, and the application will load it to establish a secure connection.
+4. **Deploy the Project**:
    - Link your GitHub repository to Vercel.
    - Deploy. Vercel reads `vercel.json` and routes requests through the `api/index.php` serverless router while serving style, script, and image folders statically.
