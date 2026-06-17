@@ -544,6 +544,7 @@ body {
 }
 
 .modal-card input[type="text"], 
+.modal-card input[type="number"], 
 .modal-card select {
     width: 100%; padding: 16px;
     border: 1px solid var(--border-color); border-radius: 16px;
@@ -563,6 +564,7 @@ body {
 }
 
 .modal-card input[type="text"]:focus, 
+.modal-card input[type="number"]:focus, 
 .modal-card select:focus {
     border-color: var(--primary-light); 
     background: rgba(255, 255, 255, 0.08);
@@ -771,8 +773,28 @@ body {
     .nav-item:hover {
          transform: translateY(-3px);
     }
-    .header { padding: 0 20px; }
+    .header { 
+        height: auto;
+        min-height: 80px;
+        padding: 15px 20px;
+        flex-direction: column;
+        gap: 12px;
+        align-items: center;
+        justify-content: center;
+    }
+    .header-greeting {
+        text-align: center;
+    }
+    .header-greeting h1 {
+        font-size: 1.4rem;
+    }
+    .player-status-container {
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 12px;
+        width: 100%;
+    }
     .dashboard-container { padding: 20px; }
-    .main-content { padding-bottom: 90px; }
+    .main-content { padding-bottom: 110px; }
     .course-list { grid-template-columns: 1fr; }
 }

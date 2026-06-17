@@ -62,6 +62,9 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
                     Start Adventure <i class="fas fa-arrow-right"></i>
                 </button>
             </form>
+            <p style="margin-top: 20px; font-size: 0.9rem; color: var(--text-muted);">
+                Don't have an account? <a href="register.php" style="color: var(--primary-light); font-weight: 700;">Sign Up</a>
+            </p>
         </div>
     </section>
 

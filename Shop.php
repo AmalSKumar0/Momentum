@@ -227,7 +227,7 @@ $stmt_custom->close();
 
                 <div class="form-group">
                     <label for="gold_cost"><i class="fas fa-coins"></i> Gold Cost</label>
-                    <input type="number" id="gold_cost" name="gold_cost" min="10" placeholder="e.g. 50" required style="width: 100%; padding: 16px; border: 1px solid var(--border-color); border-radius: 16px; font-size: 1rem; font-weight: 700; color: white; background: rgba(255, 255, 255, 0.05); outline: none;">
+                    <input type="number" id="gold_cost" name="gold_cost" min="10" placeholder="e.g. 50" required>
                 </div>
 
                 <input type="submit" value="Create Custom Reward">
