@@ -7,29 +7,36 @@ if (!isset($_SESSION['user_id'])) {
     header("Location: Auth/login.php");
     exit();
 }
-
 $user_id = $_SESSION['user_id'];
 
-// Select habits for today
+$selected_date = isset($_GET['date']) ? $_GET['date'] : date('Y-m-d');
+if (!preg_match('/^\d{4}-\d{2}-\d{2}$/', $selected_date)) {
+    $selected_date = date('Y-m-d');
+}
+$today_str = date('Y-m-d');
+
+// Select habits for the selected date
 $sql = "SELECT h.*, MAX(a.isComplete) as status
         FROM habits h
         LEFT JOIN activity a 
             ON h.id = a.HabitID 
             AND a.UserID = h.user_id 
-            AND a.completedDay = CURDATE()
+            AND a.completedDay = ?
         WHERE h.user_id = ?
         GROUP BY h.id";
 
 $stmt = $conn->prepare($sql);
-$stmt->bind_param("i", $user_id);
+$stmt->bind_param("si", $selected_date, $user_id);
 $stmt->execute();
 $result = $stmt->get_result();
 $items = $result->fetch_all(MYSQLI_ASSOC);
+$stmt->close();
+
 foreach ($items as &$item) {
     if ($item['status'] === null) {
         $item['status'] = null; 
     } else {
-        $item['status'] = true;
+        $item['status'] = intval($item['status']);
     }
 }
 unset($item);
@@ -107,24 +114,49 @@ unset($item);
                         </div>
 
                         <div class="action-row">
-                            <?php if ($item['status'] === NULL): ?>
-                                <form action="actions.php" method="POST" style="display:inline-block; margin-right:5px; flex: 2;">
-                                    <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($_SESSION['csrf_token']); ?>">
-                                    <input type="hidden" name="did" value="<?php echo $item['id']; ?>">
-                                    <button type="submit" class="btn-complete" style="width:100%;">Complete</button>
-                                </form>
-                                <form action="actions.php" method="POST" style="display:inline-block; flex: 1;">
-                                    <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($_SESSION['csrf_token']); ?>">
-                                    <input type="hidden" name="didnt" value="<?php echo $item['id']; ?>">
-                                    <button type="submit" class="btn-ai-help" style="width:100%;" title="Fail Quest (Take Damage)">
-                                        <i class="fas fa-heart-broken"></i>
-                                    </button>
-                                </form>
+                            <?php if ($selected_date === $today_str): ?>
+                                <?php if ($item['status'] === NULL): ?>
+                                    <form action="actions.php" method="POST" style="display:inline-block; margin-right:5px; flex: 2;">
+                                        <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($_SESSION['csrf_token']); ?>">
+                                        <input type="hidden" name="did" value="<?php echo $item['id']; ?>">
+                                        <button type="submit" class="btn-complete" style="width:100%;"><i class="fas fa-check"></i> Complete</button>
+                                    </form>
+                                    <form action="actions.php" method="POST" style="display:inline-block; flex: 1;">
+                                        <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($_SESSION['csrf_token']); ?>">
+                                        <input type="hidden" name="didnt" value="<?php echo $item['id']; ?>">
+                                        <button type="submit" class="btn-ai-help" style="width:100%;" title="Fail Quest (Take Damage)">
+                                            <i class="fas fa-heart-broken"></i>
+                                        </button>
+                                    </form>
+                                <?php elseif ($item['status'] === 1): ?>
+                                    <div class="quest-status-badge success" style="width:100%; text-align:center; padding: 12px; border-radius: 12px; background: rgba(46, 204, 113, 0.15); color: #2ecc71; font-weight: 800; border: 1px solid rgba(46, 204, 113, 0.25); font-size: 0.85rem; letter-spacing: 0.5px;">
+                                        <i class="fas fa-check-circle"></i> COMPLETED TODAY
+                                    </div>
+                                <?php else: ?>
+                                    <div class="quest-status-badge danger" style="width:100%; text-align:center; padding: 12px; border-radius: 12px; background: rgba(255, 118, 117, 0.15); color: #ff7675; font-weight: 800; border: 1px solid rgba(255, 118, 117, 0.25); font-size: 0.85rem; letter-spacing: 0.5px;">
+                                        <i class="fas fa-times-circle"></i> FAILED TODAY
+                                    </div>
+                                <?php endif; ?>
                             <?php else: ?>
-                                <button class="btn-complete quest-done-btn" disabled style="width:100%;">Complete</button>
-                                <button class="btn-ai-help quest-done-btn" disabled style="width:100%;">
-                                    <i class="fas fa-heart-broken"></i>
-                                </button>
+                                <?php if ($selected_date < $today_str): ?>
+                                    <?php if ($item['status'] === 1): ?>
+                                        <div class="quest-status-badge success" style="width:100%; text-align:center; padding: 12px; border-radius: 12px; background: rgba(46, 204, 113, 0.1); color: #2ecc71; font-weight: 700; border: 1px solid rgba(46, 204, 113, 0.15); font-size: 0.85rem; letter-spacing: 0.5px;">
+                                            <i class="fas fa-check-circle"></i> COMPLETED
+                                        </div>
+                                    <?php elseif ($item['status'] === 0): ?>
+                                        <div class="quest-status-badge danger" style="width:100%; text-align:center; padding: 12px; border-radius: 12px; background: rgba(255, 118, 117, 0.15); color: #ff7675; font-weight: 700; border: 1px solid rgba(255, 118, 117, 0.25); font-size: 0.85rem; letter-spacing: 0.5px;">
+                                            <i class="fas fa-times-circle"></i> FAILED
+                                        </div>
+                                    <?php else: ?>
+                                        <div class="quest-status-badge muted" style="width:100%; text-align:center; padding: 12px; border-radius: 12px; background: rgba(255, 255, 255, 0.05); color: var(--text-muted); font-weight: 700; border: 1px solid var(--border-color); font-size: 0.85rem; letter-spacing: 0.5px;">
+                                            <i class="fas fa-minus-circle"></i> MISSED
+                                        </div>
+                                    <?php endif; ?>
+                                <?php else: ?>
+                                    <div class="quest-status-badge upcoming" style="width:100%; text-align:center; padding: 12px; border-radius: 12px; background: rgba(255, 255, 255, 0.03); color: var(--text-muted); font-weight: 700; border: 1px dashed var(--border-color); font-size: 0.85rem; letter-spacing: 0.5px;">
+                                        <i class="fas fa-lock"></i> UPCOMING
+                                    </div>
+                                <?php endif; ?>
                             <?php endif; ?>
                         </div>
                     </div>
@@ -179,6 +211,9 @@ unset($item);
             </form>
         </div>
     </div>
+    <script>
+        const selectedDateStr = '<?php echo $selected_date; ?>';
+    </script>
     <script src="assets/scripts/script.js"></script>
 
     <!-- Confetti explosion trigger -->

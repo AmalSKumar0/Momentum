@@ -7,13 +7,18 @@ if (!isset($_SESSION['user_id'])) {
     header("Location: Auth/login.php");
     exit();
 }
-$stmt = $conn->prepare("SELECT gold, level, name FROM users WHERE uid = ?");
+$stmt = $conn->prepare("SELECT gold, hp, level, name FROM users WHERE uid = ?");
 $stmt->bind_param("i", $_SESSION['user_id']);
 $stmt->execute();
 $stmt->store_result();
-$stmt->bind_result($gold, $level, $name);
+$stmt->bind_result($gold, $hp, $level, $name);
 $stmt->fetch();
 $stmt->close();
+
+if ($hp > 0) {
+    header("Location: Dashboard.php");
+    exit();
+}
 ?>
 <!DOCTYPE html>
 <html lang="en">

@@ -1,4 +1,5 @@
 <?php
+ob_start();
 
 // Configure secure session cookie settings before any session starts
 if (session_status() === PHP_SESSION_NONE) {
@@ -43,15 +44,15 @@ if (file_exists(__DIR__ . '/../.env')) {
         }
         $line = trim($line);
         if (strpos($line, '=') !== false) {
-            list($name, $value) = explode('=', $line, 2);
-            $name = trim($name);
-            $value = trim($value);
+            list($env_key, $env_val) = explode('=', $line, 2);
+            $env_key = trim($env_key);
+            $env_val = trim($env_val);
             // Remove optional surrounding quotes
-            $value = trim($value, "\"'");
-            if (!array_key_exists($name, $_SERVER) && !array_key_exists($name, $_ENV)) {
-                putenv("{$name}={$value}");
-                $_ENV[$name] = $value;
-                $_SERVER[$name] = $value;
+            $env_val = trim($env_val, "\"'");
+            if (!array_key_exists($env_key, $_SERVER) && !array_key_exists($env_key, $_ENV)) {
+                putenv("{$env_key}={$env_val}");
+                $_ENV[$env_key] = $env_val;
+                $_SERVER[$env_key] = $env_val;
             }
         }
     }

@@ -7,7 +7,7 @@ $stmt->bind_result($gold, $hp, $xp, $level, $name);
 $stmt->fetch();
 $stmt->close();
 
-if ($hp == 0 && $page < 3) {
+if (isset($hp) && $hp !== null && $hp <= 0 && $page < 3) {
     header("Location: died.php");
     exit();
 }

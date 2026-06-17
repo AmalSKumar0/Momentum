@@ -62,15 +62,24 @@ if (overlay) {
 }
 
 // 4. Calendar Logic
+function formatDate(date) {
+    const y = date.getFullYear();
+    const m = String(date.getMonth() + 1).padStart(2, '0');
+    const d = String(date.getDate()).padStart(2, '0');
+    return `${y}-${m}-${d}`;
+}
+
 document.addEventListener('DOMContentLoaded', () => {
     const monthList = document.getElementById('monthList');
     const dateStrip = document.getElementById('dateStrip');
     
     if (!monthList || !dateStrip) return; // Stop if elements don't exist
 
-    const now = new Date();
     const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
     const daysShort = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+
+    const selectedDateStrVal = typeof selectedDateStr !== 'undefined' ? selectedDateStr : formatDate(new Date());
+    const selectedDate = new Date(selectedDateStrVal + 'T00:00:00');
 
     // Render Months
     months.forEach((m, i) => {
@@ -80,35 +89,68 @@ document.addEventListener('DOMContentLoaded', () => {
         s.textContent = m;
         
         // Active Month Style
-        if (i === now.getMonth()) {
-            s.style.color = "var(--primary)";
+        if (i === selectedDate.getMonth()) {
+            s.style.color = "var(--primary-light)";
             s.style.fontSize = "1.4rem";
             s.style.fontWeight = "bold";
         } else {
             s.style.color = "#b2bec3";
             s.style.fontSize = "0.9rem";
         }
+
+        s.addEventListener('click', () => {
+            const targetDate = new Date(selectedDate);
+            targetDate.setMonth(i);
+            targetDate.setDate(1);
+            window.location.href = `Dashboard.php?date=${formatDate(targetDate)}`;
+        });
+
         monthList.appendChild(s);
     });
 
-    // Render Date Strip (-4 days to +10 days)
+    // Render Date Strip (-4 days to +10 days relative to selectedDate)
     for (let i = -4; i <= 10; i++) {
-        const date = new Date();
-        date.setDate(now.getDate() + i); // Automatically handles month rollover
+        const date = new Date(selectedDate);
+        date.setDate(selectedDate.getDate() + i); // Automatically handles month rollover
         
         const card = document.createElement('div');
         card.classList.add('date-card');
-        if (i === 0) card.classList.add('active');
+        
+        const dateFormatted = formatDate(date);
+        if (dateFormatted === selectedDateStrVal) {
+            card.classList.add('active');
+        }
 
         card.innerHTML = `
             <span class="date-num">${date.getDate()}</span>
             <span class="date-day">${daysShort[date.getDay()]}</span>
         `;
+
+        card.style.cursor = "pointer";
+        card.addEventListener('click', () => {
+            window.location.href = `Dashboard.php?date=${dateFormatted}`;
+        });
         
         dateStrip.appendChild(card);
     }
 
-    // Scroll to today on load
+    // Chevron Arrows Week Navigation
+    const prevArrow = document.querySelector('.month-nav .nav-arrow:first-child');
+    const nextArrow = document.querySelector('.month-nav .nav-arrow:last-child');
+    if (prevArrow && nextArrow) {
+        prevArrow.addEventListener('click', () => {
+            const prevDate = new Date(selectedDate);
+            prevDate.setDate(selectedDate.getDate() - 7);
+            window.location.href = `Dashboard.php?date=${formatDate(prevDate)}`;
+        });
+        nextArrow.addEventListener('click', () => {
+            const nextDate = new Date(selectedDate);
+            nextDate.setDate(selectedDate.getDate() + 7);
+            window.location.href = `Dashboard.php?date=${formatDate(nextDate)}`;
+        });
+    }
+
+    // Scroll to today/active on load
     setTimeout(() => {
         const active = dateStrip.querySelector('.active');
         if (active) active.scrollIntoView({ behavior: 'smooth', inline: 'center' });

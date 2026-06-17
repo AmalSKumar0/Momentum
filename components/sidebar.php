@@ -17,7 +17,9 @@
             <a href="Inventory.php" class="nav-item <?php if($page == 4) echo 'active'; ?>">
                 <i class="fas fa-trophy"></i> Inventory
             </a>
-            
+            <a href="Profile.php" class="nav-item <?php if($page == 5) echo 'active'; ?>">
+                <i class="fas fa-user-circle"></i> Profile
+            </a>
         </ul>
 
         <div class="sidebar-footer">
