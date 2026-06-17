@@ -1,91 +1,95 @@
-# Momentum---Gamified-Habit-Tracker
+# 🎮 Momentum | Gamified Habit Tracker & RPG Life Simulator
 
-**Momentum** is a web-based productivity application that turns your daily life into an RPG. It leverages gamification psychology to help users build consistent habits by rewarding completion with **Gold Coins** and penalizing missed tasks by reducing **Health Points (HP)**.
+[![Docker Support](https://img.shields.io/badge/Docker-Enabled-blue?logo=docker&logoColor=white)](https://www.docker.com/)
+[![PHP Version](https://img.shields.io/badge/PHP-%3E%3D%207.4-8892BF?logo=php&logoColor=white)](https://www.php.net/)
+[![License](https://img.shields.io/badge/License-MIT-green)](LICENSE)
 
-![Project Screenshot](assets/image.png)
+**Momentum** is a premium, web-based gamified productivity platform that turns building habits and completing daily tasks into an engaging RPG experience. By leveraging behavioral psychology and gamification design patterns, Momentum helps users build long-term routines by rewarding consistent habits with **Gold** and **XP**, while penalizing missed tasks with **HP damage**.
 
+---
 
-## 🌟 Features
+## 🌟 Key Features
 
-* **Gamified Dashboard:**
-    * **Health Bar System:** Visual HP bar (out of 100). Missed habits deplete health.
-    * **Economy System:** Earn Gold Coins for every completed task.
-    * **Leveling:** (Future implementation) Use XP to level up.
-* **Task Management:**
-    * Simple "Did" / "Didn't" interface for quick logging.
-    * Daily reset of recurring habits.
-* **User Interface:**
-    * Modern, clean aesthetic with card-based layout.
-    * Calendar view with active date highlighting.
-    * Weather widget UI.
-    * Profile integration.
-* **Authentication:**
-    * User Registration and Login.
-    * Secure password hashing.
+### ⚔️ RPG Character progression
+* **Dynamic Level & XP System:** Earn XP by completing habits. Leveling up occurs dynamically when your XP reaches `Level * 100`. Leveling up automatically restores 25 HP.
+* **Tiered Titles:** Characters receive custom titles based on their level (*Novice Adventurer*, *Experienced Scholar*, *Elite Warrior*, *Grand Magus*, *Legendary Master*).
+* **Streak Multipliers:** Maintain consistency to build streak chains. Streaks grant escalating rewards multipliers (e.g. 1.1x at 5+ days, 1.25x at 10+ days, 1.5x at 30+ days).
+* **Scaling Difficulty & Penalty System:** Quests are categorized by difficulty (*Easy*, *Medium*, *Hard*). Failing a hard quest scales damage accordingly (reducing HP by 5, 10, or 20). If HP reaches 0, the player dies and must buy a resurrection potion to respawn.
 
-## 🛠️ Tech Stack
+### 🧪 Apothecary Shop & Inventory
+* **Item Purchases:** Spend earned Gold Coins at the apothecary shop.
+* **Consumables catalog:**
+  * **Minor Health Potion (50g):** Heals 25 HP.
+  * **Major Health Potion (90g):** Heals 50 HP.
+  * **Elixir of Life (150g):** Restores HP to 100%.
+  * **Scroll of Wisdom (80g):** Instantly grants 100 XP.
+* **Inventory Tracking:** Items bought are placed in the character's inventory where they can be dynamically used. Using potions updates character stats instantly.
 
-* **Frontend:** HTML5, CSS3 (Flexbox/Grid), JavaScript.
-* **Backend:** PHP (Native).
-* **Database:** MySQL.
-* **Fonts:** Google Fonts (Poppins).
+### 📅 Date-Driven Calendar History
+* **Activity Viewer:** Select any date on the navigation strip to inspect historic quest completion logs.
+* **Interactive Date Strip**: Uses local-timezone neutral date calculations to bypass standard JS UTC-shifting browser bugs.
+* **Status Badges:**
+  * **Present Day**: Complete or Fail quests using active forms.
+  * **Past Days**: Actions are disabled, displaying historical states: **COMPLETED** (Green), **FAILED** (Red), or **MISSED** (Gray).
+  * **Future Days**: Displays dashed **UPCOMING** status placeholders.
+* **Week & Month Jumping**: Navigate weeks with chevrons or jump months instantly using the month selector.
 
-## 🚀 Installation & Setup
+### 👤 Profile & Account Administration
+* **Character Card Visualizer**: Fully interactive visual sheet containing live progress bars for HP and XP.
+* **Account Settings**: Form validation allowing users to update their Username, Email, and Password securely with verification checks.
 
-### Prerequisites
-* A local server environment (XAMPP, WAMP, MAMP, or Docker).
-* PHP 7.4 or higher.
-* MySQL.
+### 🎨 Dark Glassmorphism Design
+* **Frosted Glass Cards:** Modern translucent paneling designed with rich gradient backdrops and glowing border highlights.
+* **Confetti Rewards:** Features high-framerate gold coin particles using `canvas-confetti` when checking off habits.
+* **Responsive Layout:** Optimized flex-and-grid alignments ensuring responsiveness across mobile viewports, tablets, and wide monitors.
 
-### Steps
+---
 
-1.  **Clone the Repository**
-    ```bash
-    git clone [https://github.com/yourusername/habitquest.git](https://github.com/yourusername/habitquest.git)
-    cd habitquest
-    ```
+## 🛠️ Architecture & Tech Stack
 
-2.  **Database Setup**
-    * Open phpMyAdmin (or your preferred SQL tool).
-    * Create a new database named `habit_tracker_db`.
-    * Import the `database.sql` file located in the `root` directory (see Schema below if file is missing).
+* **Frontend:** HTML5, Vanilla CSS3 (Custom Variables, Flexbox, Grid), JavaScript (ES6+).
+* **Confetti Engine:** `canvas-confetti` (CDN integration).
+* **Backend Core:** PHP (Native), Output Buffering (`ob_start()`) handled globally to manage state-driven redirects.
+* **Database Engine:** MySQL 8.0 with transactional processing (`begin_transaction()`, `commit()`, `rollback()`) to ensure absolute data integrity.
+* **Environment Virtualization:** Docker & Docker Compose.
 
-3.  **Configure Connection**
-    * Open `config.php` (or `db.php`).
-    * Update your database credentials:
-    ```php
-    $servername = "localhost";
-    $username = "root";
-    $password = "";
-    $dbname = "habit_tracker_db";
-    ```
+---
 
-4.  **Run the Project**
-    * Place the project folder inside your `htdocs` (XAMPP) or `www` (WAMP) folder.
-    * Navigate to `http://localhost/habitquest` in your browser.
+## 🚀 Getting Started (Local Development)
 
+### Run with Docker (Recommended)
 
-## 🎮 Game Logic
+1. **Clone the Repository**
+   ```bash
+   git clone https://github.com/AmalSKumar0/Momentum.git
+   cd Momentum
+   ```
 
-  * **Health (HP):** Starts at 100.
-      * If a user marks a task as **"Didn't"**, HP decreases by **10**.
-      * If HP reaches 0, the user "dies" (reset stats or loose levels).
-  * **Gold:** Starts at 0.
-      * If a user marks a task as **"Did"**, Gold increases by **50**.
-      * Gold can be used to "buy" rewards or restore HP (Feature in progress).
+2. **Spin Up Containers**
+   Launch the web server and database:
+   ```bash
+   docker-compose up -d --build
+   ```
+   *This automatically builds the custom PHP image, provisions MySQL 8.0, and executes the database seed script `/docker-entrypoint-initdb.d/habit_tracker.sql`.*
 
-## 🤝 Contributing
+3. **Open the App**
+   Open your browser and navigate to:
+   ```
+   http://localhost:8080/
+   ```
 
-Contributions are welcome\! Please follow these steps:
+---
 
-1.  Fork the repository.
-2.  Create a new branch (`git checkout -b feature/AmazingFeature`).
-3.  Commit your changes (`git commit -m 'Add some AmazingFeature'`).
-4.  Push to the branch (`git push origin feature/AmazingFeature`).
-5.  Open a Pull Request.
+## 🗄️ Database Schema
+
+The relational database is split into four primary tables:
+* `users`: Stores core credentials, password hashes, levels, XP, gold, current streaks, and active HP.
+* `habits`: Stores quest titles, difficulty ranks, XP/Gold reward scales, streak counters, and last-completed timestamps.
+* `activity`: Logs execution histories mapping timestamps (`completedDay`) and binary completion status (`isComplete = 1/0`) to users and habits.
+* `inventory`: Tracks quantities (`Quantity`) of items owned by a user linked to the store templates.
+
+---
 
 ## 📄 License
 
-Distributed under the MIT License. See `LICENSE` for more information.
-
------
+This project is licensed under the MIT License. See the `LICENSE` file for details.
