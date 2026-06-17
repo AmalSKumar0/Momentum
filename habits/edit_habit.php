@@ -1,6 +1,8 @@
 <?php
 include '../config/DBconfig.php';
-session_start();
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
 
 // Redirect if not logged in
 if(!isset($_SESSION['user_id'])){
@@ -13,35 +15,51 @@ $err = "";
 
 // Handle Form Submission
 if($_SERVER['REQUEST_METHOD'] == 'POST'){
-    $title = $_POST['title'];
-    $difficulty = $_POST['difficulty'];
+    validateCSRF($_POST['csrf_token'] ?? '');
+    $title = trim($_POST['title']);
+    $difficulty_input = trim($_POST['difficulty']);
     $habit_id = $_POST['habit_id'];
-    
-    // Calculate Rewards based on difficulty
-    $gold = 0;
-    $xp = 0;
-    if($difficulty == 'Easy') {
-        $gold = 5;
-        $xp = 3;
-    } elseif ($difficulty == 'Medium') {
+
+    if (empty($title)) {
+        $err = "Title cannot be empty.";
+    } else {
+        // Map difficulty and set rewards
+        $difficulty = 'medium';
         $gold = 10;
         $xp = 6;
-    } elseif ($difficulty == 'Hard') {
-        $gold = 15;
-        $xp = 9;
+        
+        $diff_lower = strtolower($difficulty_input);
+        if($diff_lower === 'easy') {
+            $difficulty = 'easy';
+            $gold = 5;
+            $xp = 3;
+        } elseif ($diff_lower === 'medium') {
+            $difficulty = 'medium';
+            $gold = 10;
+            $xp = 6;
+        } elseif ($diff_lower === 'hard') {
+            $difficulty = 'hard';
+            $gold = 15;
+            $xp = 9;
+        } else {
+            $err = "Invalid difficulty value.";
+        }
+
+        if (empty($err)) {
+            $stmt = $conn->prepare("UPDATE habits SET title = ?, difficulty = ?, xp_reward = ?, gold_reward = ? WHERE id = ? AND user_id = ?");
+            $stmt->bind_param("ssiiii", $title, $difficulty, $xp, $gold, $habit_id, $user_id);
+
+            if($stmt->execute()){
+                $stmt->close();
+                $conn->close();
+                header("Location: ../Habit.php");
+                exit();
+            } else {
+                $err = "Something went wrong. Please try again later.";
+                $stmt->close();
+            }
+        }
     }
-
-    $stmt = $conn->prepare("UPDATE habits SET title = ?, difficulty = ?, xp_reward = ?, gold_reward = ? WHERE id = ? AND user_id = ?");
-    $stmt->bind_param("ssiiii", $title, $difficulty, $xp, $gold, $habit_id, $user_id);
-
-    if($stmt->execute()){
-        header("Location: ../Habit.php");
-        exit();
-    } else {
-        $err = "Error updating quest: " . $stmt->error;
-    }
-
-    $stmt->close();
 }
 
 // Fetch Existing Habit Data
@@ -100,6 +118,7 @@ $conn->close();
         <?php endif; ?>
 
         <form method="POST">
+            <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($_SESSION['csrf_token']); ?>">
             <input type="hidden" name="habit_id" value="<?php echo $item['id']; ?>">
             
             <div class="form-group">
@@ -111,9 +130,9 @@ $conn->close();
                 <label for="difficulty"><i class="fas fa-signal"></i> Difficulty Level</label>
                 <div class="select-wrapper">
                     <select id="difficulty" name="difficulty" required>
-                        <option value="Easy" <?php if ($item['difficulty'] == 'Easy') echo 'selected'; ?>>Easy (+3 XP / 5 Gold)</option>
-                        <option value="Medium" <?php if ($item['difficulty'] == 'Medium') echo 'selected'; ?>>Medium (+6 XP / 10 Gold)</option>
-                        <option value="Hard" <?php if ($item['difficulty'] == 'Hard') echo 'selected'; ?>>Hard (+9 XP / 15 Gold)</option>
+                        <option value="easy" <?php if (strtolower($item['difficulty']) == 'easy') echo 'selected'; ?>>Easy (+3 XP / 5 Gold)</option>
+                        <option value="medium" <?php if (strtolower($item['difficulty']) == 'medium') echo 'selected'; ?>>Medium (+6 XP / 10 Gold)</option>
+                        <option value="hard" <?php if (strtolower($item['difficulty']) == 'hard') echo 'selected'; ?>>Hard (+9 XP / 15 Gold)</option>
                     </select>
                 </div>
             </div>

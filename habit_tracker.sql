@@ -31,20 +31,14 @@ CREATE TABLE `users` (
   `name` varchar(20) NOT NULL,
   `email` varchar(24) NOT NULL,
   `gold` int(5) NOT NULL DEFAULT 0,
-  `xp` int(5) NOT NULL DEFAULT 100,
+  `hp` int(5) NOT NULL DEFAULT 100,
   `password` varchar(250) NOT NULL,
+  `xp` int(11) NOT NULL DEFAULT 0,
+  `level` int(11) NOT NULL DEFAULT 1,
+  `daily_streak` int(11) NOT NULL DEFAULT 0,
+  `last_active` date DEFAULT NULL,
   PRIMARY KEY (`uid`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci AUTO_INCREMENT=10;
-
---
--- Dumping data for table `users`
---
-
-INSERT INTO `users` (`uid`, `name`, `email`, `gold`, `xp`, `password`) VALUES
-(6, 'amalskumar', 'amals@gmail.com', 219650, 240, '$2y$10$JU0dM4POlqnVIZUZlfTN2ud1W2xPrgjHFSeWaqyR35fQPy9QZIdlS'),
-(7, 'amalskumar', 'amal@gmail.com', 0, 100, '$2y$10$MtukRSx6olC1Zcslnrf5/eyDmOg8bsVBhIVmdp1KSWER3bu2Su5/S'),
-(8, 'amal', 'amalskumar@gmail.com', 0, 30, '$2y$10$t.llcxmqjz1bFK7ShN9FGejQxEKEIMr1mktP6BThH4eOZJPZ85TTC'),
-(9, 'ama@gmail.com', 'ama@gmail.com', 15, 100, '$2y$10$9DaJHW9WJbOcjaF6YdcDUOEClYuK8XNJ9rhZdht7yghZId3ihAqCK');
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
 
@@ -60,17 +54,10 @@ CREATE TABLE `habits` (
   `xp_reward` int(11) DEFAULT 5,
   `gold_reward` int(11) DEFAULT 10,
   `clicked` date DEFAULT NULL,
+  `streak` int(11) NOT NULL DEFAULT 0,
+  `last_completed` date DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci AUTO_INCREMENT=32;
-
---
--- Dumping data for table `habits`
---
-
-INSERT INTO `habits` (`id`, `user_id`, `title`, `difficulty`, `xp_reward`, `gold_reward`, `clicked`) VALUES
-(5, 6, 'gym', 'easy', 3, 5, NULL),
-(24, 8, 'help', 'easy', 3, 5, NULL),
-(26, 9, 'Read 10 pages', 'easy', 3, 5, NULL);
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
 
@@ -85,15 +72,7 @@ CREATE TABLE `activity` (
   `isComplete` tinyint(1) DEFAULT 1,
   `completedDay` date DEFAULT NULL,
   PRIMARY KEY (`ActID`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci AUTO_INCREMENT=29;
-
---
--- Dumping data for table `activity`
---
-
-INSERT INTO `activity` (`ActID`, `UserID`, `HabitID`, `isComplete`, `completedDay`) VALUES
-(26, 8, 24, 0, '2025-12-09'),
-(28, 9, 26, 1, '2025-12-09');
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
 
@@ -108,8 +87,10 @@ CREATE TABLE `customshop` (
   `difficulty` enum('easy','medium','hard') DEFAULT 'medium',
   `xp_reward` int(11) DEFAULT 5,
   `gold_cost` int(11) DEFAULT 50,
+  `type` enum('potion','scroll','gear','custom') DEFAULT 'custom',
+  `description` varchar(255) DEFAULT '',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci AUTO_INCREMENT=10;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
 
@@ -123,8 +104,20 @@ CREATE TABLE `shop` (
   `difficulty` enum('easy','medium','hard') DEFAULT 'medium',
   `xp_reward` int(11) DEFAULT 5,
   `gold_cost` int(11) DEFAULT 10,
+  `type` enum('potion','scroll','gear') DEFAULT 'potion',
+  `description` varchar(255) DEFAULT '',
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `shop`
+--
+
+INSERT INTO `shop` (`id`, `title`, `difficulty`, `xp_reward`, `gold_cost`, `type`, `description`) VALUES
+(1, 'Minor Health Potion', 'easy', 25, 50, 'potion', 'Restores 25 Health Points (HP).'),
+(2, 'Major Health Potion', 'medium', 50, 90, 'potion', 'Restores 50 Health Points (HP).'),
+(3, 'Elixir of Life', 'hard', 100, 150, 'potion', 'Fully restores Health Points (HP) to 100.'),
+(4, 'Scroll of Wisdom', 'medium', 100, 80, 'scroll', 'Grants 100 Experience Points (XP) immediately.');
 
 -- --------------------------------------------------------
 
@@ -140,15 +133,19 @@ CREATE TABLE `inventory` (
   `baught` date DEFAULT NULL,
   `Quantity` int(10) NOT NULL DEFAULT 1,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci AUTO_INCREMENT=12;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
--- Indexes for dumped tables (Secondary indexes only)
+-- Indexes for dumped tables
 --
+
+ALTER TABLE `users`
+  ADD UNIQUE KEY `email` (`email`);
 
 ALTER TABLE `activity`
   ADD KEY `UserID` (`UserID`),
-  ADD KEY `HabitID` (`HabitID`);
+  ADD KEY `HabitID` (`HabitID`),
+  ADD KEY `UserID_HabitID_completedDay` (`UserID`, `HabitID`, `completedDay`);
 
 ALTER TABLE `customshop`
   ADD KEY `user_id` (`user_id`);

@@ -1,6 +1,8 @@
 <?php
 include 'config/DBconfig.php';
-session_start();
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
 
 // Redirect if not logged in
 if (!isset($_SESSION['user_id'])) {
@@ -10,17 +12,29 @@ if (!isset($_SESSION['user_id'])) {
 
 $user_id = $_SESSION['user_id'];
 
-// 1. Fetch User Stats
-$stmt = $conn->prepare("SELECT gold, xp, name FROM users WHERE uid = ?");
-$stmt->bind_param("s", $user_id);
+// Fetch User Stats (Clean and up-to-date)
+$stmt = $conn->prepare("SELECT gold, hp, name FROM users WHERE uid = ?");
+$stmt->bind_param("i", $user_id);
 $stmt->execute();
 $stmt->store_result();
-$stmt->bind_result($gold, $xp, $name);
+$stmt->bind_result($gold, $hp, $name);
 $stmt->fetch();
 $stmt->close();
 
-// 2. Fetch Inventory Items
-$stmt = $conn->prepare("SELECT * FROM inventory WHERE user_id = ?");
+// Fetch Inventory Items (including type)
+$stmt = $conn->prepare("
+    SELECT 
+        i.id as inventory_id,
+        i.Quantity,
+        COALESCE(s.title, cs.title) AS title,
+        COALESCE(s.difficulty, cs.difficulty) AS difficulty,
+        COALESCE(s.xp_reward, cs.xp_reward) AS xp_reward,
+        COALESCE(s.type, cs.type) AS type
+    FROM inventory i
+    LEFT JOIN shop s ON i.sid = s.id
+    LEFT JOIN customshop cs ON i.cid = cs.id
+    WHERE i.user_id = ?
+");
 $stmt->bind_param("i", $user_id);
 $stmt->execute();
 $inventory_result = $stmt->get_result();
@@ -43,9 +57,8 @@ $stmt->close();
     <link rel="stylesheet" href="styles/styles.css">
     
     <style>
-        /* Inventory Specific Overrides */
         .btn-use {
-            background: #20bf6b; /* Green for 'Use' action */
+            background: linear-gradient(135deg, #2ecc71, #27ae60);
             color: #fff;
             border: none;
             width: 100%;
@@ -54,76 +67,35 @@ $stmt->close();
             font-weight: 800;
             text-transform: uppercase;
             cursor: pointer;
-            box-shadow: 0 4px 0 #009432;
-            transition: all 0.1s;
-            text-decoration: none;
+            box-shadow: 0 4px 10px rgba(46, 204, 113, 0.2);
+            transition: all 0.2s ease;
             display: flex;
             align-items: center;
             justify-content: center;
             gap: 8px;
             font-size: 0.9rem;
         }
-        .btn-use:hover { transform: translateY(-2px); box-shadow: 0 6px 0 #009432; color: white; }
-        .btn-use:active { transform: translateY(4px); box-shadow: none; }
+        .btn-use:hover { 
+            transform: translateY(-2px); 
+            box-shadow: 0 6px 15px rgba(46, 204, 113, 0.3); 
+        }
+        .btn-use:active { 
+            transform: translateY(1px); 
+            box-shadow: none; 
+        }
 
-        /* Quantity Tag */
         .qty-tag {
-            background: #2d3436;
+            background: rgba(255, 255, 255, 0.05);
             color: white;
+            border: 1px solid var(--border-color);
             font-weight: 800;
         }
-        
-        .xp-tag {
-            background: #e0dcfc;
-            color: #6c5ce7;
-            font-weight: 800;
-        }
-
-        .empty-state {
-            grid-column: 1 / -1;
-            text-align: center;
-            padding: 40px;
-            background: white;
-            border-radius: 20px;
-            color: #636e72;
-            box-shadow: 0 5px 20px rgba(0,0,0,0.03);
-        }
-
-        /* --- NOTIFICATION TOAST --- */
-        .notification {
-            position: fixed;
-            bottom: 30px;
-            left: 50%;
-            transform: translateX(-50%) translateY(100px);
-            background: #2d3436;
-            color: white;
-            padding: 12px 25px;
-            border-radius: 50px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
-            font-family: 'Nunito', sans-serif;
-            font-weight: 700;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            z-index: 9999;
-            opacity: 0;
-            transition: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
-        }
-
-        .notification.show {
-            transform: translateX(-50%) translateY(0);
-            opacity: 1;
-        }
-
-        .notification i { color: #20bf6b; }
     </style>
 </head>
 
 <body>
     
-    <!-- Sidebar -->
-    <?php $page = 4; // Highlight Inventory in sidebar
-    include './components/sidebar.php'; ?>
+    <?php $page = 4; include './components/sidebar.php'; ?>
 
     <main class="main-content">
         <!-- Header -->
@@ -133,9 +105,9 @@ $stmt->close();
             
             <!-- Section Header -->
             <div class="section-header" style="margin-bottom: 30px;">
-                <h2 style="font-size: 1.5rem; color: #2d3436;"><i class="fas fa-box-open" style="color:#6c5ce7;"></i> Your Inventory</h2>
+                <h2><i class="fas fa-box-open" style="color: var(--primary-light);"></i> Player Inventory</h2>
                 
-                <a href="Shop.php" class="ai-brief-btn" style="text-decoration:none; background:#6c5ce7; color:white; padding:10px 20px; border-radius:15px; font-weight:bold; box-shadow:0 4px 10px rgba(108, 92, 231, 0.3); display:flex; align-items:center; gap:8px;">
+                <a href="Shop.php" class="ai-brief-btn">
                     <i class="fas fa-store"></i> Visit Shop
                 </a>
             </div>
@@ -144,113 +116,96 @@ $stmt->close();
             <div class="course-list"> 
                 
                 <?php foreach ($inventory_items as $item): 
-                    // Fetch Details logic
-                    $itemDetails = null;
-                    if($item['sid']){
-                        $sql = "SELECT * FROM shop WHERE id = ?";
-                        $stmt = $conn->prepare($sql);
-                        $stmt->bind_param("i", $item['sid']);
-                    } else if($item['cid']){
-                        $sql = "SELECT * FROM customshop WHERE id = ?";
-                        $stmt = $conn->prepare($sql);
-                        $stmt->bind_param("i", $item['cid']);
-                    }
-                    
-                    if(isset($stmt)){
-                        $stmt->execute();
-                        $res = $stmt->get_result();
-                        $itemDetails = $res->fetch_assoc();
-                        $stmt->close();
-                    }
+                    $rarityClass = 'common'; 
+                    if (strtolower($item['difficulty']) == 'medium') $rarityClass = 'rare';
+                    if (strtolower($item['difficulty']) == 'hard') $rarityClass = 'epic';
 
-                    if($itemDetails):
-                        // Determine visual style based on difficulty
-                        $rarityClass = 'common'; 
-                        if (strtolower($itemDetails['difficulty']) == 'medium') $rarityClass = 'rare';
-                        if (strtolower($itemDetails['difficulty']) == 'hard') $rarityClass = 'epic';
+                    // Set icon and label dynamically
+                    $icon = 'fa-gift';
+                    $typeLabel = 'Reward';
+                    if ($item['type'] === 'potion') {
+                        $icon = 'fa-flask';
+                        $typeLabel = 'Potion';
+                    } elseif ($item['type'] === 'scroll') {
+                        $icon = 'fa-scroll';
+                        $typeLabel = 'Scroll';
+                    }
                 ?>
                     
                     <div class="quest-card <?php echo $rarityClass; ?>">
                         <div class="quest-header">
                             <div class="icon-box">
-                                <i class="fas fa-cube"></i>
+                                <i class="fas <?php echo $icon; ?>"></i>
                             </div>
                             <div class="quest-info">
-                                <h3><?php echo htmlspecialchars($itemDetails['title']); ?></h3>
+                                <h3><?php echo htmlspecialchars($item['title']); ?></h3>
                                 <div class="quest-meta">
-                                    <span><i class="fas fa-layer-group"></i> <?php echo htmlspecialchars($itemDetails['difficulty']); ?></span>
+                                    <span><i class="fas fa-tag"></i> <?php echo $typeLabel; ?></span>
+                                    <span><i class="fas fa-layer-group"></i> <?php echo htmlspecialchars(ucfirst($item['difficulty'])); ?></span>
                                 </div>
                             </div>
                         </div>
 
                         <div class="quest-rewards">
-                            <!-- XP and Quantity -->
                             <div class="loot-tag xp-tag">
-                                <i class="fas fa-star"></i> <?php echo htmlspecialchars($itemDetails['xp_reward']); ?> XP Value
+                                <?php if ($item['type'] === 'potion'): ?>
+                                    <i class="fas fa-heart" style="color: var(--accent-red);"></i> Restores <?php echo htmlspecialchars($item['xp_reward']); ?> HP
+                                <?php elseif ($item['type'] === 'scroll'): ?>
+                                    <i class="fas fa-star" style="color: var(--primary-light);"></i> Grants <?php echo htmlspecialchars($item['xp_reward']); ?> XP
+                                <?php else: ?>
+                                    <i class="fas fa-gift"></i> Custom
+                                <?php endif; ?>
                             </div>
                             <div class="loot-tag qty-tag">
                                 x<?php echo htmlspecialchars($item['Quantity']); ?> Owned
                             </div>
                         </div>
 
-                        <div class="action-row">
-                            <a href="Rewards/use_item.php?qty=<?php echo $item['Quantity']; ?>&xp=<?php echo $itemDetails['xp_reward']; ?>&inventory_id=<?php echo $item['id']; ?>" class="btn-use">
-                                Use Item
-                            </a>
+                        <div class="action-row" style="width: 100%;">
+                            <form action="Rewards/use_item.php" method="POST" style="width: 100%;">
+                                <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($_SESSION['csrf_token']); ?>">
+                                <input type="hidden" name="inventory_id" value="<?php echo $item['inventory_id']; ?>">
+                                <button type="submit" class="btn-use">
+                                    Use Item
+                                </button>
+                            </form>
                         </div>
                     </div>
 
                 <?php 
-                    endif; // End if itemDetails exists
                 endforeach; 
                 ?>
 
                 <!-- Empty State -->
                 <?php if (count($inventory_items) === 0): ?>
                     <div class="empty-state">
-                        <i class="fas fa-box-open" style="font-size: 3rem; margin-bottom: 15px; color: #b2bec3;"></i>
+                        <i class="fas fa-box-open" style="font-size: 3.5rem; margin-bottom: 15px; color: var(--text-muted); display: block;"></i>
                         <h3>Your inventory is empty.</h3>
-                        <p>Complete quests to earn gold and buy items from the shop!</p>
+                        <p>Complete quests to earn gold and buy items from the apothecary shop!</p>
                         <br>
-                        <a href="Shop.php" class="btn-use" style="max-width: 200px; margin: 0 auto; background: #6c5ce7; box-shadow: 0 4px 0 #5849be;">Go to Shop</a>
+                        <a href="Shop.php" class="btn-use" style="max-width: 200px; margin: 0 auto;">Go to Shop</a>
                     </div>
                 <?php endif; ?>
 
-            </div> <!-- End Grid -->
+            </div>
         </div>
     </main>
 
-    <!-- Notification Element -->
-    <div id="notification" class="notification">
-        <i class="fas fa-check-circle"></i> 
-        <span id="notif-message">Notification</span>
-    </div>
-
-    <!-- Notification Logic -->
-    <script>
-        function showNotification(msg) {
-            const notif = document.getElementById('notification');
-            const msgSpan = document.getElementById('notif-message');
-            
-            msgSpan.textContent = msg;
-            notif.classList.add('show');
-
+    <!-- Toast message notification -->
+    <?php if (isset($_GET['msg'])): ?>
+        <div class="notification show" id="toast">
+            <i class="fas fa-info-circle" style="color: var(--accent-gold);"></i>
+            <span><?php echo htmlspecialchars($_GET['msg']); ?></span>
+        </div>
+        <script>
             setTimeout(() => {
-                notif.classList.remove('show');
-            }, 2000);
-        }
-
-        window.addEventListener('DOMContentLoaded', () => {
-            const urlParams = new URLSearchParams(window.location.search);
-            const msg = urlParams.get('msg');
-            
-            if (msg) {
-                showNotification(msg);
-                const newUrl = window.location.protocol + "//" + window.location.host + window.location.pathname;
-                window.history.replaceState({path: newUrl}, '', newUrl);
-            }
-        });
-    </script>
+                const toast = document.getElementById('toast');
+                if (toast) {
+                    toast.classList.remove('show');
+                }
+            }, 4000);
+        </script>
+    <?php endif; ?>
 
 </body>
 </html>

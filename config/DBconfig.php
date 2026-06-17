@@ -1,16 +1,75 @@
 <?php
 
+// Configure secure session cookie settings before any session starts
+if (session_status() === PHP_SESSION_NONE) {
+    ini_set('session.cookie_httponly', 1);
+    ini_set('session.use_only_cookies', 1);
+    $isSecure = (isset($_SERVER['HTTPS']) && strtolower($_SERVER['HTTPS']) === 'on') 
+                || (isset($_SERVER['HTTP_X_FORWARDED_PROTO']) && strtolower($_SERVER['HTTP_X_FORWARDED_PROTO']) === 'https');
+    
+    session_set_cookie_params([
+        'lifetime' => 0,
+        'path' => '/',
+        'domain' => '',
+        'secure' => $isSecure,
+        'httponly' => true,
+        'samesite' => 'Lax'
+    ]);
+    session_start();
+}
+
+if (empty($_SESSION['csrf_token'])) {
+    $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+}
+
 function handleError($error) {
     error_log($error);
     die("Something went wrong! Please try again later.");
 }
 
+function validateCSRF($token) {
+    if (!isset($_SESSION['csrf_token']) || !hash_equals($_SESSION['csrf_token'], $token)) {
+        http_response_code(403);
+        die("Invalid CSRF token.");
+    }
+}
+
+// Load local .env file if it exists
+if (file_exists(__DIR__ . '/../.env')) {
+    $lines = file(__DIR__ . '/../.env', FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
+    foreach ($lines as $line) {
+        if (strpos(trim($line), '#') === 0) {
+            continue;
+        }
+        $line = trim($line);
+        if (strpos($line, '=') !== false) {
+            list($name, $value) = explode('=', $line, 2);
+            $name = trim($name);
+            $value = trim($value);
+            // Remove optional surrounding quotes
+            $value = trim($value, "\"'");
+            if (!array_key_exists($name, $_SERVER) && !array_key_exists($name, $_ENV)) {
+                putenv("{$name}={$value}");
+                $_ENV[$name] = $value;
+                $_SERVER[$name] = $value;
+            }
+        }
+    }
+}
+
 $db_host = getenv('DB_HOST') ?: 'localhost';
 $db_user = getenv('DB_USER') ?: 'root';
-$db_pass = getenv('DB_PASSWORD') ?: '';
+$db_pass = getenv('DB_PASSWORD') !== false ? getenv('DB_PASSWORD') : '2208';
 $db_name = getenv('DB_NAME') ?: 'habit_tracker';
 $db_port = getenv('DB_PORT') ?: '3306';
 $db_ssl_ca = getenv('DB_SSL_CA') ?: null;
+
+// Auto-detect Aiven cloud and enable SSL CA if not explicitly provided
+if (!$db_ssl_ca && strpos($db_host, 'aivencloud.com') !== false) {
+    if (file_exists(__DIR__ . '/../ca.pem')) {
+        $db_ssl_ca = 'ca.pem';
+    }
+}
 
 $conn = mysqli_init();
 

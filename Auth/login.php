@@ -1,6 +1,8 @@
 <?php
 include '../config/DBconfig.php';
-session_start();
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
 $err = "";
 if($_SERVER['REQUEST_METHOD'] == 'POST'){
     $email = $_POST['email'];
@@ -9,25 +11,18 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
     $stmt = $conn->prepare("SELECT uid,name,email,password FROM users WHERE email = ?");
     $stmt->bind_param("s", $email);
     $stmt->execute();
-    $stmt->store_result();
-    $stmt->bind_result($id, $name, $email, $hashed_password);
-    $stmt->fetch();
-    if(!$stmt->num_rows > 0){
-        $err = 'No user found with this email. Please register first.';
+    $result = $stmt->get_result();
+    
+    if ($user = $result->fetch_assoc()) {
+        if (password_verify($password, $user['password'])) {
+            session_regenerate_id(true);
+            $_SESSION['user_id'] = $user['uid'];
+            $_SESSION['user_name'] = $user['name'];
+            header("Location: ../Dashboard.php");
+            exit();
+        }
     }
-    if(!password_verify($password, $hashed_password)){
-        $err = 'Incorrect password. Please try again.';
-    }
-
-    if($stmt->num_rows > 0 && password_verify($password, $hashed_password)){
-        $_SESSION['user_id'] = $id;
-        $_SESSION['user_name'] = $name;
-        header("Location: ../Dashboard.php");
-        exit();
-    } else {
-        $err = "Invalid email or password.";
-    }
-
+    $err = "Invalid email or password.";
     $stmt->close();
     $conn->close();
 }

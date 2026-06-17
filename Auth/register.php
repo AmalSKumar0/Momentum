@@ -1,24 +1,44 @@
 <?php
 include '../config/DBconfig.php';
-session_start();
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
 $err = "";
 if($_SERVER['REQUEST_METHOD'] == 'POST'){
-    $username = $_POST['username'];
-    $email = $_POST['email'];
+    $username = trim($_POST['username']);
+    $email = trim($_POST['email']);
     $password = password_hash($_POST['password'], PASSWORD_BCRYPT);
 
-    $stmt = $conn->prepare("INSERT INTO users (name, email, password) VALUES (?, ?, ?)");
-    $stmt->bind_param("sss", $username, $email, $password);
-
-    if($stmt->execute()){
-        header("Location: login.php");
-        exit();
-    } else {
-        $err = "Error: " . $stmt->error;
-        
+    // Validate email format
+    if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+        $err = "Invalid email format.";
     }
 
-    $stmt->close();
+    if (empty($err)) {
+        // Check if email already exists
+        $check_stmt = $conn->prepare("SELECT uid FROM users WHERE email = ?");
+        $check_stmt->bind_param("s", $email);
+        $check_stmt->execute();
+        $check_stmt->store_result();
+        
+        if ($check_stmt->num_rows > 0) {
+            $err = "This email address is already registered.";
+        }
+        $check_stmt->close();
+    }
+
+    if (empty($err)) {
+        $stmt = $conn->prepare("INSERT INTO users (name, email, password) VALUES (?, ?, ?)");
+        $stmt->bind_param("sss", $username, $email, $password);
+
+        if($stmt->execute()){
+            header("Location: login.php");
+            exit();
+        } else {
+            $err = "Something went wrong. Please try again later.";
+        }
+        $stmt->close();
+    }
     $conn->close();
 }
 ?>
@@ -65,30 +85,5 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
         </div>
     </section>
 
-</body>
-</html>
-
-
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Register</title>
-</head>
-<body>
-    <h2>Register</h2>
-    <?php if($err): ?>
-        <p style="color:red;"><?php echo $err; ?></p>
-    <?php endif; ?>
-    <form method="POST">
-        <label for="username">Username:</label>
-        <br><br>
-        <label for="email">Email id:</label>
-        <input type="text" id="email" name="email" required><br><br>
-        <label for="password">Password:</label>
-        <input type="password" id="password" name="password" required><br><br>
-        <input type="submit" value="Register">
-    </form>
 </body>
 </html>

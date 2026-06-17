@@ -1,15 +1,19 @@
 <?php
 include 'config/DBconfig.php';
-session_start();
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
 if (!isset($_SESSION['user_id'])) {
     header("Location: Auth/login.php");
+    exit();
 }
-$stmt = $conn->prepare("SELECT gold,xp,name FROM users WHERE uid = ?");
+$stmt = $conn->prepare("SELECT gold, level, name FROM users WHERE uid = ?");
 $stmt->bind_param("i", $_SESSION['user_id']);
 $stmt->execute();
 $stmt->store_result();
-$stmt->bind_result($gold, $xp, $name);
+$stmt->bind_result($gold, $level, $name);
 $stmt->fetch();
+$stmt->close();
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -27,29 +31,29 @@ $stmt->fetch();
 
     <div class="death-card">
         <div class="icon-container">
-            <i class="fas fa-heart-broken" style="color: #ff7675;"></i>
+            <i class="fas fa-heart-broken"></i>
         </div>
 
         <h1>Game Over!</h1>
-        <p>Your health has reached zero. Don't give up! Respawn now to keep your streak alive.</p>
+        <p>Your health has reached zero. Don't give up! Visit the apothecary shop to buy a Health Potion and respawn.</p>
 
         <div class="stats-row">
             <div class="stat-badge">
-                <i class="fas fa-trophy"></i> XP <?php echo $xp; ?>
+                <i class="fas fa-trophy" style="color: var(--primary-light);"></i> Level <?php echo $level; ?>
             </div>
             <div class="stat-badge">
-                <i class="fas fa-coins"></i> <?php echo $gold; ?> Coins
+                <i class="fas fa-coins" style="color: var(--gold);"></i> <?php echo number_format($gold); ?> Coins
             </div>
         </div>
 
         <!-- Action Form -->
-        <form action="Shop.php" method="POST">
+        <form action="Shop.php" method="GET">
             <button type="submit" class="btn-respawn">
-                <i class="fas fa-redo"></i> Buy Potion
+                <i class="fas fa-store"></i> Visit Shop
             </button>
         </form>
 
-        <a href="Dashboard.php" class="link-home">Back to Main Menu</a>
+        <a href="Dashboard.php" class="link-home">Back to Menu</a>
     </div>
 
 </body>
