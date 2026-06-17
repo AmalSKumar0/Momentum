@@ -79,7 +79,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const daysShort = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 
     const selectedDateStrVal = typeof selectedDateStr !== 'undefined' ? selectedDateStr : formatDate(new Date());
-    const selectedDate = new Date(selectedDateStrVal + 'T00:00:00');
+    const dateParts = selectedDateStrVal.split('-');
+    const selectedDate = new Date(parseInt(dateParts[0]), parseInt(dateParts[1]) - 1, parseInt(dateParts[2]));
 
     // Render Months
     months.forEach((m, i) => {
