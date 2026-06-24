@@ -134,7 +134,8 @@ $emailBody = <<<HTML
   <style>
     body {
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-      background-color: #f6f5fb;
+      background: #faf8fd;
+      background-image: linear-gradient(180deg, #faf8fd 0%, #fff5f7 100%);
       margin: 0;
       padding: 0;
     }
@@ -143,54 +144,56 @@ $emailBody = <<<HTML
       margin: 40px auto;
       background-color: #ffffff;
       border-radius: 16px;
-      box-shadow: 0 10px 30px rgba(108, 92, 231, 0.08);
+      box-shadow: 0 10px 40px rgba(244, 114, 182, 0.05);
       overflow: hidden;
-      border: 1px solid #e1dff5;
+      border: 1px solid #f3eaf2;
     }
     .email-header {
-      background: linear-gradient(135deg, #6c5ce7, #8e2de2);
-      color: #ffffff;
-      padding: 40px 30px;
+      background: linear-gradient(135deg, #fff0f3 0%, #f3e8ff 100%);
+      padding: 45px 35px;
       text-align: center;
+      border-bottom: 1px solid #fdf2f4;
     }
     .email-header h1 {
       margin: 0;
-      font-size: 24px;
-      font-weight: 700;
+      font-size: 26px;
+      font-weight: 800;
       letter-spacing: -0.5px;
+      color: #581c87;
     }
     .email-header p {
       margin: 10px 0 0 0;
       font-size: 14px;
-      opacity: 0.9;
+      color: #701a75;
+      font-weight: 500;
     }
     .email-body {
-      padding: 40px 30px;
-      color: #2d3436;
+      padding: 40px 35px;
+      color: #1e1b4b;
     }
     .section-title {
-      font-size: 12px;
-      font-weight: 800;
+      font-size: 11px;
+      font-weight: 700;
       text-transform: uppercase;
-      letter-spacing: 1px;
-      color: #6c5ce7;
-      margin-bottom: 8px;
-      margin-top: 24px;
+      letter-spacing: 2px;
+      color: #8b5cf6;
+      margin-bottom: 10px;
+      margin-top: 28px;
     }
     .section-title:first-child {
       margin-top: 0;
     }
     .contact-info {
-      background-color: #f9f8ff;
+      background-color: #faf5ff;
       border-radius: 12px;
-      padding: 20px;
+      padding: 22px;
       margin-bottom: 24px;
-      border: 1px solid #f0edf9;
+      border: 1px solid #f3e8ff;
     }
     .info-row {
-      margin-bottom: 12px;
-      border-bottom: 1px solid #f1f0f8;
-      padding-bottom: 12px;
+      margin-bottom: 14px;
+      border-bottom: 1px solid #f5f0fa;
+      padding-bottom: 14px;
     }
     .info-row:last-child {
       margin-bottom: 0;
@@ -199,29 +202,29 @@ $emailBody = <<<HTML
     }
     .info-label {
       font-weight: 700;
-      font-size: 13px;
-      color: #5f27cd;
+      font-size: 11px;
+      color: #a855f7;
       text-transform: uppercase;
-      letter-spacing: 0.5px;
-      margin-bottom: 4px;
+      letter-spacing: 1px;
+      margin-bottom: 5px;
     }
     .info-value {
-      font-size: 14px;
-      color: #2d3436;
+      font-size: 15px;
+      color: #1e1b4b;
+      font-weight: 500;
     }
     .message-box {
-      background: #ffffff;
-      border-left: 4px solid #6c5ce7;
-      padding: 20px;
+      background: #fffafb;
+      border-left: 4px solid #f472b6;
+      border-top: 1px solid #fbcfe8;
+      border-right: 1px solid #fbcfe8;
+      border-bottom: 1px solid #fbcfe8;
+      padding: 22px;
       margin-bottom: 24px;
-      color: #485460;
+      color: #4c1d95;
       font-size: 15px;
-      line-height: 1.6;
+      line-height: 1.7;
       border-radius: 0 12px 12px 0;
-      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.02);
-      border-top: 1px solid #f1f0f8;
-      border-right: 1px solid #f1f0f8;
-      border-bottom: 1px solid #f1f0f8;
     }
     .metadata-table {
       width: 100%;
@@ -229,28 +232,30 @@ $emailBody = <<<HTML
       margin-top: 16px;
     }
     .metadata-table td {
-      padding: 10px 12px;
+      padding: 12px;
       font-size: 13px;
-      border-bottom: 1px solid #f1f0f8;
+      border-bottom: 1px solid #f5f0fa;
     }
     .metadata-table tr:last-child td {
       border-bottom: none;
     }
     .metadata-label {
       font-weight: 600;
-      color: #8395a7;
-      width: 130px;
+      color: #9ca3af;
+      width: 140px;
     }
     .metadata-value {
-      color: #576574;
-      font-family: monospace;
+      color: #4b5563;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
     }
     .email-footer {
-      background-color: #2d3436;
-      color: #a4b0be;
+      background-color: #fdfafc;
+      color: #a855f7;
       text-align: center;
-      padding: 20px;
+      padding: 24px;
       font-size: 12px;
+      font-weight: 500;
+      border-top: 1px solid #f5f0fa;
       border-bottom-left-radius: 16px;
       border-bottom-right-radius: 16px;
     }
@@ -272,10 +277,9 @@ $emailBody = <<<HTML
         <div class="info-row">
           <div class="info-label">Email Address</div>
           <div class="info-value">
-            <a href="mailto:{$emailHtml}" style="color: #6c5ce7; text-decoration: none; font-weight: 600;">{$emailHtml}</a>
+            <a href="mailto:{$emailHtml}" style="color: #8b5cf6; text-decoration: none; font-weight: 600; border-bottom: 1px dashed #8b5cf6;">{$emailHtml}</a>
           </div>
         </div>
-
       </div>
 
       <div class="section-title">Message Details</div>
@@ -447,8 +451,108 @@ function sendSmtpEmail($to, $subject, $body, $headers, $smtpSettings) {
     return true;
 }
 
+/**
+ * Send email using Resend HTTP API
+ */
+function sendResendEmail($to, $subject, $body, $from, $apiKey) {
+    $url = 'https://api.resend.com/emails';
+    $payload = [
+        'from' => $from,
+        'to' => [$to],
+        'subject' => $subject,
+        'html' => $body
+    ];
+
+    $ch = curl_init($url);
+    if (!$ch) {
+        throw new Exception("Failed to initialize cURL for Resend API");
+    }
+
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+    curl_setopt($ch, CURLOPT_POST, true);
+    curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($payload));
+    curl_setopt($ch, CURLOPT_HTTPHEADER, [
+        'Authorization: Bearer ' . $apiKey,
+        'Content-Type: application/json'
+    ]);
+    curl_setopt($ch, CURLOPT_TIMEOUT, 15);
+
+    $response = curl_exec($ch);
+    $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+    $curlError = curl_error($ch);
+    curl_close($ch);
+
+    if ($response === false) {
+        throw new Exception("Resend cURL Failure: " . $curlError);
+    }
+
+    if ($httpCode >= 200 && $httpCode < 300) {
+        return true;
+    }
+
+    $err = json_decode($response, true);
+    $errMsg = $err['message'] ?? (is_array($err) ? json_encode($err) : $response);
+    throw new Exception("Resend API Error (HTTP $httpCode): " . $errMsg);
+}
+
+/**
+ * Send email using SendGrid HTTP API
+ */
+function sendSendGridEmail($to, $subject, $body, $from, $apiKey) {
+    $url = 'https://api.sendgrid.com/v3/mail/send';
+    $payload = [
+        'personalizations' => [[
+            'to' => [['email' => $to]]
+        ]],
+        'from' => ['email' => $from],
+        'subject' => $subject,
+        'content' => [[
+            'type' => 'text/html',
+            'value' => $body
+        ]]
+    ];
+
+    $ch = curl_init($url);
+    if (!$ch) {
+        throw new Exception("Failed to initialize cURL for SendGrid API");
+    }
+
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+    curl_setopt($ch, CURLOPT_POST, true);
+    curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($payload));
+    curl_setopt($ch, CURLOPT_HTTPHEADER, [
+        'Authorization: Bearer ' . $apiKey,
+        'Content-Type: application/json'
+    ]);
+    curl_setopt($ch, CURLOPT_TIMEOUT, 15);
+
+    $response = curl_exec($ch);
+    $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+    $curlError = curl_error($ch);
+    curl_close($ch);
+
+    if ($response === false) {
+        throw new Exception("SendGrid cURL Failure: " . $curlError);
+    }
+
+    if ($httpCode >= 200 && $httpCode < 300) {
+        return true;
+    }
+
+    $err = json_decode($response, true);
+    $errMsg = $err['errors'][0]['message'] ?? (is_array($err) ? json_encode($err) : $response);
+    throw new Exception("SendGrid API Error (HTTP $httpCode): " . $errMsg);
+}
+
+$resend_api_key = getenv('RESEND_API_KEY') ?: '';
+$sendgrid_api_key = getenv('SENDGRID_API_KEY') ?: '';
+
 try {
-    if (!empty($smtp_settings['host'])) {
+    if (!empty($resend_api_key)) {
+        sendResendEmail($contact_to, $subject, $emailBody, $contact_from, $resend_api_key);
+    } else if (!empty($sendgrid_api_key)) {
+        sendSendGridEmail($contact_to, $subject, $emailBody, $contact_from, $sendgrid_api_key);
+    } else if (!empty($smtp_settings['host'])) {
         sendSmtpEmail($contact_to, $subject, $emailBody, $headers, $smtp_settings);
     } else {
         // Fallback to native mail()
@@ -468,5 +572,5 @@ try {
 } catch (Exception $e) {
     error_log("Contact API Mail Failure: " . $e->getMessage());
     http_response_code(500);
-    echo json_encode(["success" => false, "error" => "Unable to send email"]);
+    echo json_encode(["success" => false, "error" => "Unable to send email: " . $e->getMessage()]);
 }
